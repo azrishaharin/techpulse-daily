@@ -6,9 +6,10 @@ interface Props {
   sourceUrl: string;
   publishedAt: Date;
   slug: string;
+  image?: string;
 }
 
-const { title, category, source, sourceUrl, publishedAt, slug } = Astro.props;
+const { title, category, source, sourceUrl, publishedAt, slug, image } = Astro.props;
 
 const categoryColors = {
   smartphone: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
@@ -27,19 +28,36 @@ const hoverClass = categoryBgHover[category];
 
 const formattedDate = new Date(publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 ---
+
 <a href={`/articles/${slug}`} class="group block">
-  <article class={`relative p-5 rounded-xl border border-slate-700 bg-slate-800/50 transition-all duration-300 hover:-translate-y-1 hover:bg-slate-800 ${hoverClass} hover:shadow-lg`}>
-    <div class="flex items-center gap-2 mb-3">
-      <span class={`text-xs px-2.5 py-1 rounded-full border font-medium ${colorClass}`}>
-        {category.toUpperCase()}
-      </span>
-      <span class="text-xs text-slate-400">{source}</span>
+  <article class={`relative rounded-xl border border-slate-700 bg-slate-800/50 transition-all duration-300 hover:-translate-y-1 hover:bg-slate-800 ${hoverClass} hover:shadow-lg overflow-hidden`}>
+
+    {/* Hero Image */}
+    {image && (
+      <div class="aspect-video w-full overflow-hidden bg-slate-700/50">
+        <img
+          src={image}
+          alt={title}
+          class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+        />
+      </div>
+    )}
+
+    {/* Content */}
+    <div class="p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span class={`text-xs px-2.5 py-1 rounded-full border font-medium ${colorClass}`}>
+          {category.toUpperCase()}
+        </span>
+        <span class="text-xs text-slate-400">{source}</span>
+      </div>
+      <h3 class="font-semibold text-slate-100 text-lg leading-snug group-hover:text-sky-400 transition-colors duration-200 mb-2 line-clamp-2">
+        {title}
+      </h3>
+      <time class="text-xs text-slate-500 block mt-3">
+        {formattedDate}
+      </time>
     </div>
-    <h3 class="font-semibold text-slate-100 text-lg leading-snug group-hover:text-sky-400 transition-colors duration-200 mb-2 line-clamp-2">
-      {title}
-    </h3>
-    <time class="text-xs text-slate-500 block mt-3">
-      {formattedDate}
-    </time>
   </article>
 </a>

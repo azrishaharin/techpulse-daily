@@ -57,6 +57,16 @@ const canonicalUrl = `/articles/${article.slug}`;
     )}
 
     <article>
+      {article.data.image && (
+      <div class="aspect-video w-full max-w-2xl mx-auto mb-8 rounded-xl overflow-hidden border border-slate-700">
+        <img
+          src={article.data.image}
+          alt={article.data.title}
+          class="w-full h-full object-cover"
+        />
+      </div>
+    )}
+
       <!-- Category & Date -->
       <div class="flex items-center gap-3 mb-4">
         <span class={`text-xs font-semibold px-3 py-1.5 rounded-full border ${categoryColor} ${categoryHover} transition-all`}>
