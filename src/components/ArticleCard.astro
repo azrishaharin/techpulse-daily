@@ -1,0 +1,36 @@
+---
+interface Props {
+  title: string;
+  category: 'smartphone' | 'gaming' | 'ai';
+  source: string;
+  sourceUrl: string;
+  publishedAt: Date;
+  slug: string;
+}
+
+const { title, category, source, sourceUrl, publishedAt, slug } = Astro.props;
+
+const categoryColors = {
+  smartphone: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+  gaming: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+  ai: 'bg-green-500/20 text-green-300 border-green-500/30',
+};
+
+const colorClass = categoryColors[category];
+---
+<a href={`/articles/${slug}`} class="group block">
+  <article class="p-4 rounded-xl border border-slate-700 bg-slate-800/50 hover:border-sky-500/50 transition-all hover:bg-slate-800">
+    <div class="flex items-center gap-2 mb-2">
+      <span class={`text-xs px-2 py-0.5 rounded-full border ${colorClass}`}>
+        {category.toUpperCase()}
+      </span>
+      <span class="text-xs text-slate-400">{source}</span>
+    </div>
+    <h3 class="font-semibold text-slate-100 group-hover:text-sky-400 transition-colors mb-1">
+      {title}
+    </h3>
+    <time class="text-xs text-slate-500">
+      {new Date(publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+    </time>
+  </article>
+</a>
