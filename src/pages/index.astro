@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const articles = await getCollection('articles');
+const sortedArticles = articles.sort(
+  (a, b) => new Date(b.data.publishedAt).getTime() - new Date(a.data.publishedAt).getTime()
+);
+
+const categoryColors = {
+  smartphone: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  gaming: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+  ai: 'bg-green-500/10 text-green-400 border-green-500/20',
+};
+
+const today = new Date().toLocaleDateString('en-US', {
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+});
+---
+
+<BaseLayout title="TechPulse Daily">
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-bold mb-2">Welcome to TechPulse Daily</h1>
+      <p class="text-slate-400 text-lg">Your daily tech news, distilled — {today}</p>
+    </div>
+
+    {sortedArticles.length === 0 ? (
+      <div class="text-center py-16 text-slate-400">
+        <p class="text-xl">No articles yet — check back soon!</p>
+      </div>
+    ) : (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {sortedArticles.map((article) => {
+          const categoryColor = categoryColors[article.data.category] || categoryColors.smartphone;
+          return (
+            <a
+              href={`/articles/${article.slug}`}
+              class="block bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-slate-700 transition-colors group"
+            >
+              <div class="flex items-center gap-2 mb-3">
+                <span class={`text-xs font-medium px-2 py-1 rounded-full border ${categoryColor}`}>
+                  {article.data.category}
+                </span>
+              </div>
+              <h2 class="text-xl font-semibold mb-2 group-hover:text-sky-400 transition-colors">
+                {article.data.title}
+              </h2>
+              <p class="text-slate-400 text-sm mb-4 line-clamp-2">{article.data.description}</p>
+              <div class="flex items-center justify-between text-xs text-slate-500">
+                <span>Source: {article.data.source}</span>
+                <span>{new Date(article.data.publishedAt).toLocaleDateString()}</span>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    )}
+  </div>
+</BaseLayout>
