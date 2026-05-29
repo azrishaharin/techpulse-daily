@@ -4,10 +4,13 @@ import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
   const articles = await getCollection('articles');
-  return articles.map((article) => ({
-    params: { slug: article.slug },
-    props: { article },
-  }));
+  // Only generate paths for approved articles to avoid slug issues
+  return articles
+    .filter(a => a.data.approved === true)
+    .map((article) => ({
+      params: { slug: article.slug },
+      props: { article },
+    }));
 }
 
 const { article } = Astro.props;
@@ -19,48 +22,92 @@ const categoryColors = {
   ai: 'bg-green-500/10 text-green-400 border-green-500/20',
 };
 
+const categoryBgHover = {
+  smartphone: 'hover:bg-blue-500/20 hover:border-blue-400/40',
+  gaming: 'hover:bg-purple-500/20 hover:border-purple-400/40',
+  ai: 'hover:bg-green-500/20 hover:border-green-400/40',
+};
+
 const categoryColor = categoryColors[article.data.category] || categoryColors.smartphone;
+const categoryHover = categoryBgHover[article.data.category] || categoryBgHover.smartphone;
 
 const formattedDate = new Date(article.data.publishedAt).toLocaleDateString('en-US', {
+  weekday: 'long',
   month: 'long',
   day: 'numeric',
   year: 'numeric',
 });
+
+const canonicalUrl = `/articles/${article.slug}`;
 ---
 
 <BaseLayout title={article.data.title} description={article.data.description}>
-  <div class="max-w-4xl mx-auto px-4 py-8">
-    <a href="/" class="inline-flex items-center text-slate-400 hover:text-sky-400 transition-colors mb-8 text-sm">
-      ← Back to homepage
+  <div class="max-w-2xl mx-auto px-4 py-10">
+    <!-- Back Link -->
+    <a href="/" class="inline-flex items-center gap-2 text-slate-400 hover:text-sky-400 transition-colors mb-8 text-sm font-medium">
+      <span class="text-lg">←</span> Back to homepage
     </a>
 
+    <!-- Pending Review Banner -->
+    {article.data.approved === false && (
+      <div class="mb-8 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-center">
+        <span class="font-semibold">📝 This article is pending review</span>
+        <p class="text-sm mt-1 text-amber-400/80">Check back later for the full article.</p>
+      </div>
+    )}
+
     <article>
+      <!-- Category & Date -->
       <div class="flex items-center gap-3 mb-4">
-        <span class={`text-xs font-medium px-3 py-1 rounded-full border ${categoryColor}`}>
-          {article.data.category}
+        <span class={`text-xs font-semibold px-3 py-1.5 rounded-full border ${categoryColor} ${categoryHover} transition-all`}>
+          {article.data.category.toUpperCase()}
         </span>
         <span class="text-slate-500 text-sm">{formattedDate}</span>
       </div>
 
-      <h1 class="text-4xl font-bold mb-4">{article.data.title}</h1>
+      <!-- Title -->
+      <h1 class="text-3xl sm:text-4xl font-extrabold mb-6 leading-tight text-slate-100">
+        {article.data.title}
+      </h1>
 
-      <div class="flex items-center gap-2 text-sm text-slate-400 mb-8 pb-8 border-b border-slate-800">
-        <span>Source:</span>
+      <!-- Source & Author -->
+      <div class="flex flex-wrap items-center gap-3 text-sm mb-10 pb-8 border-b border-slate-800">
+        <span class="text-slate-400">Source:</span>
         <a
           href={article.data.sourceUrl}
           target="_blank"
           rel="noopener noreferrer"
-          class="text-sky-400 hover:text-sky-300"
+          class="text-sky-400 hover:text-sky-300 font-medium transition-colors"
         >
           {article.data.source}
         </a>
         <span class="text-slate-600">•</span>
-        <span>{article.data.author}</span>
+        <span class="text-slate-400">{article.data.author}</span>
       </div>
 
-      <div class="prose prose-invert prose-slate max-w-none">
+      <!-- Article Content -->
+      <div class="prose prose-invert prose-slate prose-lg max-w-none
+        prose-headings:text-slate-100 prose-headings:font-bold
+        prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
+        prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
+        prose-p:text-slate-300 prose-p:leading-relaxed
+        prose-a:text-sky-400 prose-a:no-underline hover:prose-a:underline
+        prose-strong:text-slate-100 prose-strong:font-semibold
+        prose-code:text-sky-300 prose-code:bg-slate-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
+        prose-pre:bg-slate-800 prose-pre:border prose-pre:border-slate-700
+        prose-li:text-slate-300
+        prose-blockquote:text-slate-400 prose-blockquote:border-l-sky-500
+        prose-img:rounded-xl prose-img:border prose-img:border-slate-700
+      ">
         <Content />
       </div>
     </article>
+
+    <!-- Footer Back Link -->
+    <div class="mt-16 pt-8 border-t border-slate-800 text-center">
+      <a href="/" class="inline-flex items-center gap-2 text-slate-400 hover:text-sky-400 transition-colors text-sm font-medium">
+        ← Back to homepage
+      </a>
+    </div>
   </div>
 </BaseLayout>

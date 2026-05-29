@@ -16,21 +16,30 @@ const categoryColors = {
   ai: 'bg-green-500/20 text-green-300 border-green-500/30',
 };
 
+const categoryBgHover = {
+  smartphone: 'hover:border-blue-500/60 hover:shadow-blue-500/10',
+  gaming: 'hover:border-purple-500/60 hover:shadow-purple-500/10',
+  ai: 'hover:border-green-500/60 hover:shadow-green-500/10',
+};
+
 const colorClass = categoryColors[category];
+const hoverClass = categoryBgHover[category];
+
+const formattedDate = new Date(publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 ---
 <a href={`/articles/${slug}`} class="group block">
-  <article class="p-4 rounded-xl border border-slate-700 bg-slate-800/50 hover:border-sky-500/50 transition-all hover:bg-slate-800">
-    <div class="flex items-center gap-2 mb-2">
-      <span class={`text-xs px-2 py-0.5 rounded-full border ${colorClass}`}>
+  <article class={`relative p-5 rounded-xl border border-slate-700 bg-slate-800/50 transition-all duration-300 hover:-translate-y-1 hover:bg-slate-800 ${hoverClass} hover:shadow-lg`}>
+    <div class="flex items-center gap-2 mb-3">
+      <span class={`text-xs px-2.5 py-1 rounded-full border font-medium ${colorClass}`}>
         {category.toUpperCase()}
       </span>
       <span class="text-xs text-slate-400">{source}</span>
     </div>
-    <h3 class="font-semibold text-slate-100 group-hover:text-sky-400 transition-colors mb-1">
+    <h3 class="font-semibold text-slate-100 text-lg leading-snug group-hover:text-sky-400 transition-colors duration-200 mb-2 line-clamp-2">
       {title}
     </h3>
-    <time class="text-xs text-slate-500">
-      {new Date(publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+    <time class="text-xs text-slate-500 block mt-3">
+      {formattedDate}
     </time>
   </article>
 </a>

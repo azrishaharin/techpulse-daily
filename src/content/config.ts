@@ -11,6 +11,7 @@ const articles = defineCollection({
     publishedAt: z.coerce.date(),
     author: z.string().default('Mochi for TechPulse'),
     image: z.string().optional(),
+    approved: z.boolean().default(false),
   }),
 });
 

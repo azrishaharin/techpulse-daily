@@ -6,28 +6,50 @@ interface Props {
   description?: string;
 }
 
-const { title, description = 'Your daily tech news, distilled' } = Astro.props;
+const { title, description = 'Your daily tech news, distilled. Covering AI, smartphones, and gaming with a fresh perspective.' } = Astro.props;
+const canonicalUrl = Astro.url.href;
 ---
-
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <title>{title}</title>
+    <meta name="keywords" content="tech news, AI, artificial intelligence, smartphones, gaming, technology" />
+    <meta name="author" content="TechPulse Daily" />
+    
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={`${title} | TechPulse Daily`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content="TechPulse Daily" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={`${title} | TechPulse Daily`} />
+    <meta name="twitter:description" content={description} />
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗞</text></svg>" type="image/svg+xml" />
+    
+    <link rel="canonical" href={canonicalUrl} />
+    <title>{title} | TechPulse Daily</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   </head>
-  <body class="min-h-screen flex flex-col">
-    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-10">
+  <body class="min-h-screen flex flex-col font-['Inter',sans-serif]">
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-10">
       <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
         <div>
-          <a href="/" class="text-2xl font-bold text-sky-400 hover:text-sky-300 transition-colors">
+          <a href="/" class="text-2xl font-extrabold text-sky-400 hover:text-sky-300 transition-colors tracking-tight">
             TechPulse Daily
           </a>
           <p class="text-sm text-slate-400 mt-0.5">Your daily tech news, distilled</p>
+        </div>
+        <div class="hidden sm:block text-sm text-slate-500">
+          <time id="header-date"></time>
         </div>
       </div>
     </header>
@@ -39,5 +61,12 @@ const { title, description = 'Your daily tech news, distilled' } = Astro.props;
     <footer class="border-t border-slate-800 mt-12 py-6 text-center text-slate-400 text-sm">
       <p>Content by Mochi • Powered by Hermes Agent</p>
     </footer>
+
+    <script>
+      const el = document.getElementById('header-date');
+      if (el) {
+        el.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+      }
+    </script>
   </body>
 </html>

@@ -3,85 +3,50 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import { getCollection } from 'astro:content';
 
-// Get approved articles from collection
-const approvedArticles = await getCollection('articles');
+// Get only approved articles
+const allArticles = await getCollection('articles');
+const approvedArticles = allArticles
+  .filter(a => a.data.approved === true)
+  .sort((a, b) => new Date(b.data.publishedAt).getTime() - new Date(a.data.publishedAt).getTime());
 
-// Sample articles for demo (these will be replaced by real content later)
-const sampleArticles = [
-  {
-    slug: 'samsung-galaxy-s25-ultra-leaks',
-    data: {
-      title: 'Samsung Galaxy S25 Ultra Leaks: 200MP Camera and Snapdragon 8 Gen 4',
-      category: 'smartphone' as const,
-      source: 'Android Authority',
-      sourceUrl: 'https://androidauthority.com',
-      publishedAt: new Date('2025-06-01'),
-    },
-  },
-  {
-    slug: 'playstation-6-development-report',
-    data: {
-      title: 'PlayStation 6 Development Reportedly Underway with AMD Partnership',
-      category: 'gaming' as const,
-      source: 'IGN',
-      sourceUrl: 'https://ign.com',
-      publishedAt: new Date('2025-05-28'),
-    },
-  },
-  {
-    slug: 'gpt-5-benchmarks-reasoning',
-    data: {
-      title: 'GPT-5 Benchmarks Reveal Breakthrough in Reasoning Capabilities',
-      category: 'ai' as const,
-      source: 'The Verge',
-      sourceUrl: 'https://theverge.com',
-      publishedAt: new Date('2025-05-30'),
-    },
-  },
-];
-
-// Combine real articles with sample articles
-const combinedArticles = [...approvedArticles, ...sampleArticles];
-
-// Sort by date
-const sortedArticles = combinedArticles.sort(
-  (a, b) => new Date(b.data.publishedAt).getTime() - new Date(a.data.publishedAt).getTime()
-);
-
-// Category filter state (for demo, show all)
 const categories = ['smartphone', 'gaming', 'ai'] as const;
 
 const categoryColors = {
-  smartphone: 'bg-blue-500/20 text-blue-300 border-blue-500/30 hover:bg-blue-500/30',
-  gaming: 'bg-purple-500/20 text-purple-300 border-purple-500/30 hover:bg-purple-500/30',
-  ai: 'bg-green-500/20 text-green-300 border-green-500/30 hover:bg-green-500/30',
+  smartphone: 'bg-blue-500/20 text-blue-300 border-blue-500/30 hover:bg-blue-500/30 hover:border-blue-400',
+  gaming: 'bg-purple-500/20 text-purple-300 border-purple-500/30 hover:bg-purple-500/30 hover:border-purple-400',
+  ai: 'bg-green-500/20 text-green-300 border-green-500/30 hover:bg-green-500/30 hover:border-green-400',
 };
 
 const today = new Date().toLocaleDateString('en-US', {
+  weekday: 'long',
   month: 'long',
   day: 'numeric',
   year: 'numeric',
 });
 ---
 
-<BaseLayout title="TechPulse Daily">
-  <div class="max-w-6xl mx-auto px-4 py-8">
-    <div class="text-center mb-12">
-      <h1 class="text-4xl font-bold mb-2">Welcome to TechPulse Daily</h1>
-      <p class="text-slate-400 text-lg">Your daily tech news, distilled — {today}</p>
+<BaseLayout title="TechPulse Daily" description="Your daily tech news, distilled. Covering AI, smartphones, and gaming with a fresh perspective.">
+  <div class="max-w-6xl mx-auto px-4 py-10">
+    <!-- Hero Section -->
+    <div class="text-center mb-14 py-8">
+      <h1 class="text-5xl sm:text-6xl font-extrabold mb-4 bg-gradient-to-r from-sky-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+        TechPulse Daily
+      </h1>
+      <p class="text-slate-400 text-xl mb-2">Your daily tech news, distilled</p>
+      <p class="text-slate-500 text-sm">{today}</p>
     </div>
 
     <!-- Category Filter Pills -->
-    <div class="flex flex-wrap justify-center gap-2 mb-8">
+    <div class="flex flex-wrap justify-center gap-3 mb-12">
       <button
-        class="category-pill px-4 py-2 rounded-full text-sm font-medium border border-slate-600 bg-slate-800 text-slate-300 hover:border-sky-500/50 transition-all"
+        class="category-pill active px-5 py-2 rounded-full text-sm font-semibold border border-slate-600 bg-slate-800 text-slate-200 hover:border-sky-500/50 transition-all duration-200"
         data-category="all"
       >
-        All
+        All Articles
       </button>
       {categories.map((cat) => (
         <button
-          class={`category-pill px-4 py-2 rounded-full text-sm font-medium border transition-all ${categoryColors[cat]}`}
+          class={`category-pill px-5 py-2 rounded-full text-sm font-semibold border transition-all duration-200 ${categoryColors[cat]}`}
           data-category={cat}
         >
           {cat.toUpperCase()}
@@ -89,13 +54,16 @@ const today = new Date().toLocaleDateString('en-US', {
       ))}
     </div>
 
-    {sortedArticles.length === 0 ? (
-      <div class="text-center py-16 text-slate-400">
-        <p class="text-xl">No articles yet — check back soon!</p>
+    <!-- Articles Grid -->
+    {approvedArticles.length === 0 ? (
+      <div class="text-center py-20 text-slate-400">
+        <div class="text-6xl mb-4">📰</div>
+        <p class="text-xl mb-2">No articles yet</p>
+        <p class="text-slate-500">Check back soon for the latest tech news!</p>
       </div>
     ) : (
-      <div id="articles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sortedArticles.map((article) => (
+      <div id="articles-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+        {approvedArticles.map((article) => (
           <div class="article-item" data-category={article.data.category}>
             <ArticleCard
               title={article.data.title}
@@ -112,32 +80,44 @@ const today = new Date().toLocaleDateString('en-US', {
   </div>
 
   <script>
-    // Simple category filter functionality
     document.addEventListener('DOMContentLoaded', () => {
       const pills = document.querySelectorAll('.category-pill');
       const articles = document.querySelectorAll('.article-item');
+
+      // Set initial active state
+      const activePill = document.querySelector('.category-pill[data-category="all"]');
+      if (activePill) activePill.classList.add('ring-2', 'ring-sky-500', 'ring-offset-2', 'ring-offset-slate-900');
 
       pills.forEach((pill) => {
         pill.addEventListener('click', () => {
           const category = pill.getAttribute('data-category');
 
-          // Update active state
+          // Update active pill
           pills.forEach((p) => {
-            p.classList.remove('ring-2', 'ring-sky-500');
+            p.classList.remove('ring-2', 'ring-sky-500', 'ring-offset-2', 'ring-offset-slate-900');
           });
-          pill.classList.add('ring-2', 'ring-sky-500');
+          pill.classList.add('ring-2', 'ring-sky-500', 'ring-offset-2', 'ring-offset-slate-900');
 
           // Filter articles
           articles.forEach((article) => {
             const articleCategory = article.getAttribute('data-category');
+            const el = article as HTMLElement;
             if (category === 'all' || articleCategory === category) {
-              (article as HTMLElement).style.display = 'block';
+              el.style.display = 'block';
+              el.style.animation = 'fadeIn 0.3s ease-out';
             } else {
-              (article as HTMLElement).style.display = 'none';
+              el.style.display = 'none';
             }
           });
         });
       });
     });
   </script>
+
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </BaseLayout>
