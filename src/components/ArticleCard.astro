@@ -7,34 +7,34 @@ interface Props {
   publishedAt: Date;
   slug: string;
   image?: string;
+  excerpt?: string;
 }
 
-const { title, category, source, sourceUrl, publishedAt, slug, image } = Astro.props;
+const { title, category, source, sourceUrl, publishedAt, slug, image, excerpt } = Astro.props;
 
-const categoryColors = {
-  smartphone: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-  gaming: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-  ai: 'bg-green-500/20 text-green-300 border-green-500/30',
+const categoryClasses = {
+  smartphone: 'category-smartphone',
+  gaming: 'category-gaming',
+  ai: 'category-ai',
 };
 
-const categoryBgHover = {
-  smartphone: 'hover:border-blue-500/60 hover:shadow-blue-500/10',
-  gaming: 'hover:border-purple-500/60 hover:shadow-purple-500/10',
-  ai: 'hover:border-green-500/60 hover:shadow-green-500/10',
-};
+const badgeClass = categoryClasses[category];
 
-const colorClass = categoryColors[category];
-const hoverClass = categoryBgHover[category];
+// Estimate read time (avg 200 wpm, 3 paragraphs)
+const readTime = '4 min read';
 
-const formattedDate = new Date(publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const formattedDate = new Date(publishedAt).toLocaleDateString('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
 ---
 
 <a href={`/articles/${slug}`} class="group block">
-  <article class={`relative rounded-xl border border-slate-700 bg-slate-800/50 transition-all duration-300 hover:-translate-y-1 hover:bg-slate-800 ${hoverClass} hover:shadow-lg overflow-hidden`}>
-
-    {/* Hero Image */}
-    {image && (
-      <div class="aspect-video w-full overflow-hidden bg-slate-700/50">
+  <article class="article-card bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:border-slate-300">
+    {/* Thumbnail */}
+    {image ? (
+      <div class="aspect-[16/9] w-full overflow-hidden bg-slate-100">
         <img
           src={image}
           alt={title}
@@ -42,22 +42,38 @@ const formattedDate = new Date(publishedAt).toLocaleDateString('en-US', { month:
           loading="lazy"
         />
       </div>
+    ) : (
+      <div class="aspect-[16/9] w-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
+        <span class="text-slate-300 text-5xl font-bold opacity-30">
+          {title.charAt(0)}
+        </span>
+      </div>
     )}
 
     {/* Content */}
     <div class="p-5">
-      <div class="flex items-center gap-2 mb-3">
-        <span class={`text-xs px-2.5 py-1 rounded-full border font-medium ${colorClass}`}>
-          {category.toUpperCase()}
+      {/* Meta row */}
+      <div class="flex items-center justify-between mb-3">
+        <span class={`category-badge ${badgeClass}`}>
+          {category}
         </span>
-        <span class="text-xs text-slate-400">{source}</span>
+        <span class="text-xs text-slate-400">{readTime}</span>
       </div>
-      <h3 class="font-semibold text-slate-100 text-lg leading-snug group-hover:text-sky-400 transition-colors duration-200 mb-2 line-clamp-2">
+
+      {/* Title */}
+      <h3 class="font-bold text-slate-900 text-base leading-snug mb-2 group-hover:text-sky-600 transition-colors line-clamp-2">
         {title}
       </h3>
-      <time class="text-xs text-slate-500 block mt-3">
-        {formattedDate}
-      </time>
+
+      {/* Source & Date */}
+      <div class="flex items-center justify-between mt-4 pt-3 border-t border-slate-100">
+        <span class="text-xs text-slate-500">
+          <span class="font-medium">{source}</span>
+        </span>
+        <time class="text-xs text-slate-400" datetime={new Date(publishedAt).toISOString()}>
+          {formattedDate}
+        </time>
+      </div>
     </div>
   </article>
 </a>

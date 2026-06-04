@@ -3,18 +3,19 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import { getCollection } from 'astro:content';
 
-// Get only approved articles
 const allArticles = await getCollection('articles');
 const approvedArticles = allArticles
   .filter(a => a.data.approved === true)
   .sort((a, b) => new Date(b.data.publishedAt).getTime() - new Date(a.data.publishedAt).getTime());
 
 const categories = ['smartphone', 'gaming', 'ai'] as const;
+const categoryLabels = { smartphone: 'Smartphone', gaming: 'Gaming', ai: 'AI' };
 
-const categoryColors = {
-  smartphone: 'bg-blue-500/20 text-blue-300 border-blue-500/30 hover:bg-blue-500/30 hover:border-blue-400',
-  gaming: 'bg-purple-500/20 text-purple-300 border-purple-500/30 hover:bg-purple-500/30 hover:border-purple-400',
-  ai: 'bg-green-500/20 text-green-300 border-green-500/30 hover:bg-green-500/30 hover:border-green-400',
+const latestArticle = approvedArticles[0] || null;
+const latestGrouped = {
+  smartphone: approvedArticles.filter(a => a.data.category === 'smartphone'),
+  gaming: approvedArticles.filter(a => a.data.category === 'gaming'),
+  ai: approvedArticles.filter(a => a.data.category === 'ai'),
 };
 
 const today = new Date().toLocaleDateString('en-US', {
@@ -23,102 +24,109 @@ const today = new Date().toLocaleDateString('en-US', {
   day: 'numeric',
   year: 'numeric',
 });
+
+const heroArticle = approvedArticles[0];
 ---
 
 <BaseLayout title="TechPulse Daily" description="Your daily tech news, distilled. Covering AI, smartphones, and gaming with a fresh perspective.">
-  <div class="max-w-6xl mx-auto px-4 py-10">
-    <!-- Hero Section -->
-    <div class="text-center mb-14 py-8">
-      <h1 class="text-5xl sm:text-6xl font-extrabold mb-4 bg-gradient-to-r from-sky-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-        TechPulse Daily
-      </h1>
-      <p class="text-slate-400 text-xl mb-2">Your daily tech news, distilled</p>
-      <p class="text-slate-500 text-sm">{today}</p>
-    </div>
 
-    <!-- Category Filter Pills -->
-    <div class="flex flex-wrap justify-center gap-3 mb-12">
-      <button
-        class="category-pill active px-5 py-2 rounded-full text-sm font-semibold border border-slate-600 bg-slate-800 text-slate-200 hover:border-sky-500/50 transition-all duration-200"
-        data-category="all"
-      >
-        All Articles
-      </button>
-      {categories.map((cat) => (
-        <button
-          class={`category-pill px-5 py-2 rounded-full text-sm font-semibold border transition-all duration-200 ${categoryColors[cat]}`}
-          data-category={cat}
-        >
-          {cat.toUpperCase()}
-        </button>
-      ))}
-    </div>
+  <!-- Hero Section (Latest Article) -->
+  {heroArticle && (
+    <section class="bg-slate-900 text-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 md:py-16">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <div class="flex items-center gap-3 mb-4">
+              <span class="text-xs font-bold px-2.5 py-1 bg-sky-500 text-white rounded-full tracking-wide uppercase">
+                Latest
+              </span>
+              <span class={`category-badge bg-white/10 text-white/80`}>
+                {heroArticle.data.category}
+              </span>
+            </div>
+            <a href={`/articles/${heroArticle.slug}`} class="group">
+              <h2 class="text-3xl md:text-4xl font-extrabold leading-tight mb-4 group-hover:text-sky-400 transition-colors">
+                {heroArticle.data.title}
+              </h2>
+            </a>
+            <p class="text-slate-300 text-base leading-relaxed mb-6 line-clamp-3">
+              {heroArticle.data.description}
+            </p>
+            <div class="flex items-center gap-4 text-sm text-slate-400">
+              <span class="font-medium text-slate-200">{heroArticle.data.source}</span>
+              <span>•</span>
+              <time>{new Date(heroArticle.data.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</time>
+            </div>
+            <a
+              href={`/articles/${heroArticle.slug}`}
+              class="inline-flex items-center gap-2 mt-6 text-sky-400 font-semibold hover:text-sky-300 transition-colors"
+            >
+              Read story
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+              </svg>
+            </a>
+          </div>
+          {heroArticle.data.image && (
+            <div class="rounded-xl overflow-hidden aspect-video">
+              <a href={`/articles/${heroArticle.slug}`}>
+                <img
+                  src={heroArticle.data.image}
+                  alt={heroArticle.data.title}
+                  class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                />
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  )}
 
-    <!-- Articles Grid -->
-    {approvedArticles.length === 0 ? (
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+
+    <!-- Category Sections -->
+    {categories.map(cat => {
+      const articles = latestGrouped[cat];
+      if (articles.length === 0) return null;
+      return (
+        <section class="mb-14" id={cat}>
+          <!-- Section Header -->
+          <div class="flex items-center justify-between mb-6 pb-3 border-b border-slate-200">
+            <h2 class="text-2xl font-bold text-slate-900 capitalize">
+              {categoryLabels[cat]}
+            </h2>
+            <a href={`/#${cat}`} class="text-sm text-slate-400 hover:text-sky-600 transition-colors font-medium">
+              View all →
+            </a>
+          </div>
+
+          {/* Cards Grid — 3 columns desktop, 2 tablet, 1 mobile */}
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {articles.map(article => (
+              <ArticleCard
+                title={article.data.title}
+                category={article.data.category}
+                source={article.data.source}
+                sourceUrl={article.data.sourceUrl}
+                publishedAt={article.data.publishedAt}
+                image={article.data.image}
+                slug={article.slug}
+              />
+            ))}
+          </div>
+        </section>
+      );
+    })}
+
+    <!-- Empty State -->
+    {approvedArticles.length === 0 && (
       <div class="text-center py-20 text-slate-400">
         <div class="text-6xl mb-4">📰</div>
-        <p class="text-xl mb-2">No articles yet</p>
-        <p class="text-slate-500">Check back soon for the latest tech news!</p>
-      </div>
-    ) : (
-      <div id="articles-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-        {approvedArticles.map((article) => (
-          <div class="article-item" data-category={article.data.category}>
-            <ArticleCard
-              title={article.data.title}
-              category={article.data.category}
-              source={article.data.source}
-              sourceUrl={article.data.sourceUrl}
-              publishedAt={article.data.publishedAt}
-              image={article.data.image}
-              slug={article.slug}
-            />
-          </div>
-        ))}
+        <p class="text-xl mb-2 text-slate-600">No articles yet</p>
+        <p class="text-slate-400">Check back soon for the latest tech news!</p>
       </div>
     )}
   </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const pills = document.querySelectorAll('.category-pill');
-      const articles = document.querySelectorAll('.article-item');
-
-      // Set initial active state
-      const activePill = document.querySelector('.category-pill[data-category="all"]');
-      if (activePill) activePill.classList.add('ring-2', 'ring-sky-500', 'ring-offset-2', 'ring-offset-slate-900');
-
-      pills.forEach((pill) => {
-        pill.addEventListener('click', () => {
-          const category = pill.getAttribute('data-category');
-
-          // Update active pill
-          pills.forEach((p) => {
-            p.classList.remove('ring-2', 'ring-sky-500', 'ring-offset-2', 'ring-offset-slate-900');
-          });
-          pill.classList.add('ring-2', 'ring-sky-500', 'ring-offset-2', 'ring-offset-slate-900');
-
-          // Filter articles
-          articles.forEach((article) => {
-            const articleCategory = article.getAttribute('data-category');
-            const el = article as HTMLElement;
-            if (category === 'all' || articleCategory === category) {
-              el.style.display = 'block';
-              el.style.animation = 'fadeIn 0.3s ease-out';
-            } else {
-              el.style.display = 'none';
-            }
-          });
-        });
-      });
-    });
-  </script>
-
-  <style>
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
 </BaseLayout>

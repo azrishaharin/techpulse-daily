@@ -2,11 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply bg-slate-950 text-slate-100 antialiased;
-  }
-  a {
-    @apply text-sky-400 hover:text-sky-300 transition-colors;
-  }
+:root {
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reading time label animation */
+.read-time-enter {
+  animation: fadeSlideIn 0.3s ease-out;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Card hover effect */
+.article-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.article-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Category badge pill */
+.category-badge {
+  @apply text-xs font-semibold px-2.5 py-0.5 rounded-full tracking-wide uppercase;
+}
+.category-smartphone {
+  @apply bg-blue-100 text-blue-700;
+}
+.category-gaming {
+  @apply bg-purple-100 text-purple-700;
+}
+.category-ai {
+  @apply bg-emerald-100 text-emerald-700;
+}
+
+/* Hero section gradient text (optional if you want it back) */
+.hero-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-sky-600 to-blue-600;
 }
