@@ -30,11 +30,13 @@ const navLinks = [
     <meta property="og:title" content={`${title} | TechPulse Daily`} />
     <meta property="og:description" content={description} />
     <meta property="og:site_name" content="TechPulse Daily" />
+    <meta property="og:image" content={new URL('/images/og-preview.jpg', Astro.url).href} />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={`${title} | TechPulse Daily`} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL('/images/og-preview.jpg', Astro.url).href} />
 
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗞</text></svg>" type="image/svg+xml" />

@@ -8,9 +8,10 @@ interface Props {
   slug: string;
   image?: string;
   excerpt?: string;
+  readTime?: string;
 }
 
-const { title, category, source, sourceUrl, publishedAt, slug, image, excerpt } = Astro.props;
+const { title, category, source, sourceUrl, publishedAt, slug, image, excerpt, readTime: propReadTime } = Astro.props;
 
 const categoryClasses = {
   smartphone: 'category-smartphone',
@@ -20,8 +21,8 @@ const categoryClasses = {
 
 const badgeClass = categoryClasses[category];
 
-// Estimate read time (avg 200 wpm, 3 paragraphs)
-const readTime = '4 min read';
+// Use passed readTime or fallback
+const readTime = propReadTime || '3 min read';
 
 const formattedDate = new Date(publishedAt).toLocaleDateString('en-US', {
   month: 'short',
