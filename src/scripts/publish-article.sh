@@ -64,6 +64,13 @@ git add "$NEW_PATH"
 git add "$DRAFT_PATH"  # This will be a delete, so git will handle it
 git rm "$DRAFT_PATH" 2>/dev/null || true
 
+# Extract image path from frontmatter and stage it
+IMAGE_PATH=$(grep "^image:" "$NEW_PATH" | sed 's/image:[[:space:]]*["'\'']//' | sed 's/["'\''][[:space:]]*$//' | xargs)
+if [ -n "$IMAGE_PATH" ] && [ -f "${REPO_DIR}/public${IMAGE_PATH}" ]; then
+    echo "📷 Staging article image: public${IMAGE_PATH}"
+    git add "${REPO_DIR}/public${IMAGE_PATH}"
+fi
+
 # Commit with conventional message
 git commit -m "publish: $SLUG"
 
