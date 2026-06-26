@@ -36,8 +36,8 @@ const heroReadTime = Math.max(1, Math.ceil(heroWordCount / 200)) + ' min read';
   {heroArticle && (
     <section class="bg-slate-900 text-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 md:py-16">
-        <div class="grid md:grid-cols-2 gap-8 items-center">
-          <div>
+        <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+          <div class="order-2 md:order-1">
             <div class="flex items-center gap-3 mb-4">
               <span class="text-xs font-bold px-2.5 py-1 bg-sky-500 text-white rounded-full tracking-wide uppercase">
                 Latest
@@ -72,7 +72,7 @@ const heroReadTime = Math.max(1, Math.ceil(heroWordCount / 200)) + ' min read';
             </a>
           </div>
           {heroArticle.data.image && (
-            <div class="rounded-xl overflow-hidden aspect-video">
+            <div class="rounded-xl overflow-hidden aspect-video bg-slate-850 order-1 md:order-2">
               <a href={`/articles/${heroArticle.slug}`}>
                 <img
                   src={heroArticle.data.image}
@@ -95,7 +95,7 @@ const heroReadTime = Math.max(1, Math.ceil(heroWordCount / 200)) + ' min read';
       const articles = latestGrouped[cat];
       if (articles.length === 0) return null;
       return (
-        <section class="mb-14" id={cat}>
+        <section class="mb-14 scroll-mt-20" id={cat}>
           <!-- Section Header -->
           <div class="flex items-center justify-between mb-6 pb-3 border-b border-slate-200">
             <h2 class="text-2xl font-bold text-slate-900 capitalize">
