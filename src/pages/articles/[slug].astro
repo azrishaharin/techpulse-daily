@@ -34,6 +34,16 @@ const wordCount = article.body ? article.body.split(/\s+/).length : 0;
 const readTime = Math.max(1, Math.ceil(wordCount / 200)) + ' min read';
 
 const sourceDisplay = article.data.source || 'TechPulse Daily';
+
+// Fetch related articles (same category, not current article, max 2)
+const allArticles = await getCollection('articles');
+const relatedArticles = allArticles
+  .filter(a => a.data.approved === true && a.slug !== article.slug)
+  .filter(a => a.data.category === article.data.category)
+  .slice(0, 2);
+const finalRelated = relatedArticles.length > 0 ? relatedArticles : allArticles
+  .filter(a => a.data.approved === true && a.slug !== article.slug)
+  .slice(0, 2);
 ---
 
 <BaseLayout title={article.data.title} description={article.data.description}>
@@ -89,6 +99,21 @@ const sourceDisplay = article.data.source || 'TechPulse Daily';
 
   <!-- Article Body -->
   <div class="max-w-2xl mx-auto px-4 sm:px-6 pb-16">
+    <!-- Lead / Takeaway Box -->
+    {article.data.description && (
+      <div class="bg-sky-50 border-l-4 border-sky-500 p-5 rounded-r-xl mb-8">
+        <h4 class="text-sm font-bold text-sky-900 uppercase tracking-wide flex items-center gap-2 mb-2">
+          <svg class="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Quick Takeaway
+        </h4>
+        <p class="text-slate-700 leading-relaxed font-medium">
+          {article.data.description}
+        </p>
+      </div>
+    )}
+
     <div class="prose prose-lg prose-slate max-w-none
       prose-headings:font-bold prose-headings:text-slate-900
       prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:border-b prose-h2:border-slate-200 prose-h2:pb-2
@@ -122,8 +147,45 @@ const sourceDisplay = article.data.source || 'TechPulse Daily';
       </a>
     </div>
 
+    <!-- Mochi Author Card -->
+    <div class="mt-12 p-6 bg-slate-50 rounded-2xl flex flex-col sm:flex-row items-center sm:items-start gap-4 border border-slate-100/50">
+      <img src="/images/mochi-avatar.jpg" alt="Mochi Avatar" class="w-16 h-16 rounded-full object-cover shadow-sm bg-sky-100 border border-slate-200" />
+      <div>
+        <h4 class="text-base font-bold text-slate-900 mb-1">Written by Mochi</h4>
+        <p class="text-sm text-slate-500 leading-relaxed">
+          Mochi is Azri's friendly and encouraging personal AI assistant. Keeping you up-to-date with tech updates, gaming news, and AI insights—distilled down in plain, jargon-free English! 🌸
+        </p>
+      </div>
+    </div>
+
+    <!-- Related Articles -->
+    {finalRelated.length > 0 && (
+      <div class="mt-16 pt-8 border-t border-slate-200">
+        <h3 class="text-lg font-bold text-slate-900 mb-6">You Might Also Like</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {finalRelated.map(item => (
+            <a href={`/articles/${item.slug}`} class="group block">
+              <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:border-slate-300">
+                {item.data.image && (
+                  <div class="aspect-video w-full overflow-hidden bg-slate-100">
+                    <img src={item.data.image} alt={item.data.title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  </div>
+                )}
+                <div class="p-4">
+                  <span class="text-xs font-semibold text-sky-600 uppercase tracking-wide">{item.data.category}</span>
+                  <h4 class="font-bold text-slate-900 text-sm leading-snug mt-1 group-hover:text-sky-600 transition-colors line-clamp-2">
+                    {item.data.title}
+                  </h4>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
     <!-- Back link -->
-    <div class="mt-8 text-center">
+    <div class="mt-12 text-center">
       <a href="/" class="text-sm text-slate-400 hover:text-sky-600 transition-colors font-medium">
         ← Back to TechPulse Daily
       </a>

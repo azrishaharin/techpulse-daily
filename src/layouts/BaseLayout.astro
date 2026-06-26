@@ -99,6 +99,10 @@ const navLinks = [
           </nav>
         </div>
       </div>
+      <!-- Scroll Progress Bar -->
+      <div class="w-full bg-slate-100 h-0.5">
+        <div id="scroll-progress" class="bg-sky-500 h-full w-0 transition-all duration-75"></div>
+      </div>
     </header>
 
     <main class="flex-1">
@@ -127,6 +131,17 @@ const navLinks = [
           menu.classList.toggle('hidden');
         });
       }
+
+      // Scroll progress indicator
+      window.addEventListener('scroll', () => {
+        const bar = document.getElementById('scroll-progress');
+        if (bar) {
+          const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+          const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+          const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+          bar.style.width = scrolled + '%';
+        }
+      });
     </script>
   </body>
 </html>
